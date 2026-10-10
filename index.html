@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCrunch Data Structures Playground — Riya Kathiriya</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --node-bg: #334155;
+            --node-border: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #334155;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .author-tag {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: var(--bg-color);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .ds-section {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .ds-section.active {
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background: var(--bg-color);
+            border: 1px solid var(--node-border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        button.action-btn {
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.action-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .canvas {
+            min-height: 250px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px dashed var(--node-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        /* Stack Display */
+        .stack-container {
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            gap: 8px;
+            width: 120px;
+            border-bottom: 4px solid var(--accent);
+            border-left: 2px solid var(--node-border);
+            border-right: 2px solid var(--node-border);
+        }
+
+        .stack-item {
+            width: 100%;
+            padding: 10px;
+            background: var(--node-bg);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Queue Display */
+        .queue-container {
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 8px;
+            border-bottom: 2px solid var(--node-border);
+            border-top: 2px solid var(--node-border);
+            min-width: 300px;
+        }
+
+        .queue-item {
+            padding: 12px 20px;
+            background: var(--node-bg);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            animation: slideRight 0.3s ease;
+        }
+
+        /* Linked List Display */
+        .ll-container {
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center;
+            background: var(--node-bg);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ll-arrow {
+            color: var(--accent);
+            margin-left: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* SVG Containers for Graph and Tree */
+        svg {
+            width: 100%;
+            height: 350px;
+        }
+
+        .node circle {
+            fill: var(--node-bg);
+            stroke: var(--accent);
+            stroke-width: 2px;
+            transition: all 0.3s;
+        }
+
+        .node text {
+            fill: var(--text-main);
+            font-size: 14px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .link {
+            stroke: var(--node-border);
+            stroke-width: 2px;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideRight {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TechCrunch Data Structures Playground</h1>
+    <div class="author-tag">Project by Riya Kathiriya</div>
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('stack')">Stack</button>
+        <button class="nav-btn" onclick="switchTab('queue')">Queue</button>
+        <button class="nav-btn" onclick="switchTab('linkedlist')">Linked List</button>
+        <button class="nav-btn" onclick="switchTab('tree')">Binary Tree</button>
+        <button class="nav-btn" onclick="switchTab('graph')">Graph</button>
+    </nav>
+</header>
+
+<main>
+    <!-- STACK -->
+    <section id="stack" class="ds-section active">
+        <h2>Stack (LIFO - Last In, First Out)</h2>
+        <div class="controls">
+            <input type="text" id="stack-input" placeholder="Enter Value">
+            <button class="action-btn" onclick="pushStack()">Push</button>
+            <button class="action-btn" onclick="popStack()">Pop</button>
+        </div>
+        <div class="canvas">
+            <div id="stack-canvas" class="stack-container"></div>
+        </div>
+    </section>
+
+    <!-- QUEUE -->
+    <section id="queue" class="ds-section">
+        <h2>Queue (FIFO - First In, First Out)</h2>
+        <div class="controls">
+            <input type="text" id="queue-input" placeholder="Enter Value">
+            <button class="action-btn" onclick="enqueue()">Enqueue</button>
+            <button class="action-btn" onclick="dequeue()">Dequeue</button>
+        </div>
+        <div class="canvas">
+            <div id="queue-canvas" class="queue-container"></div>
+        </div>
+    </section>
+
+    <!-- LINKED LIST -->
+    <section id="linkedlist" class="ds-section">
+        <h2>Singly Linked List</h2>
+        <div class="controls">
+            <input type="text" id="ll-input" placeholder="Enter Value">
+            <button class="action-btn" onclick="appendLL()">Append</button>
+            <button class="action-btn" onclick="deleteLL()">Delete Tail</button>
+        </div>
+        <div class="canvas">
+            <div id="ll-canvas" class="ll-container"></div>
+        </div>
+    </section>
+
+    <!-- TREE -->
+    <section id="tree" class="ds-section">
+        <h2>Binary Search Tree</h2>
+        <div class="controls">
+            <input type="number" id="tree-input" placeholder="Enter Number">
+            <button class="action-btn" onclick="insertTree()">Insert Node</button>
+            <button class="action-btn" onclick="clearTree()">Clear</button>
+        </div>
+        <div class="canvas">
+            <svg id="tree-svg"></svg>
+        </div>
+    </section>
+
+    <!-- GRAPH -->
+    <section id="graph" class="ds-section">
+        <h2>Undirected Graph</h2>
+        <div class="controls">
+            <input type="text" id="graph-node-input" placeholder="Node Name">
+            <button class="action-btn" onclick="addGraphNode()">Add Node</button>
+            <input type="text" id="graph-edge-u" placeholder="Node A" style="width: 80px;">
+            <input type="text" id="graph-edge-v" placeholder="Node B" style="width: 80px;">
+            <button class="action-btn" onclick="addGraphEdge()">Add Edge</button>
+        </div>
+        <div class="canvas">
+            <svg id="graph-svg"></svg>
+        </div>
+    </section>
+</main>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.ds-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    let stack = [];
+    function pushStack() {
+        const val = document.getElementById('stack-input').value;
+        if (!val) return;
+        stack.push(val);
+        document.getElementById('stack-input').value = '';
+        renderStack();
+    }
+    function popStack() {
+        stack.pop();
+        renderStack();
+    }
+    function renderStack() {
+        const container = document.getElementById('stack-canvas');
+        container.innerHTML = '';
+        stack.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'stack-item';
+            el.innerText = item;
+            container.appendChild(el);
+        });
+    }
+
+    let queue = [];
+    function enqueue() {
+        const val = document.getElementById('queue-input').value;
+        if (!val) return;
+        queue.push(val);
+        document.getElementById('queue-input').value = '';
+        renderQueue();
+    }
+    function dequeue() {
+        queue.shift();
+        renderQueue();
+    }
+    function renderQueue() {
+        const container = document.getElementById('queue-canvas');
+        container.innerHTML = '';
+        queue.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'queue-item';
+            el.innerText = item;
+            container.appendChild(el);
+        });
+    }
+
+    let linkedList = [];
+    function appendLL() {
+        const val = document.getElementById('ll-input').value;
+        if (!val) return;
+        linkedList.push(val);
+        document.getElementById('ll-input').value = '';
+        renderLL();
+    }
+    function deleteLL() {
+        linkedList.pop();
+        renderLL();
+    }
+    function renderLL() {
+        const container = document.getElementById('ll-canvas');
+        container.innerHTML = '';
+        linkedList.forEach((item, index) => {
+            const node = document.createElement('div');
+            node.className = 'll-node';
+            node.innerText = item;
+
+            if (index < linkedList.length - 1) {
+                const arrow = document.createElement('span');
+                arrow.className = 'll-arrow';
+                arrow.innerHTML = '&rarr;';
+                node.appendChild(arrow);
+            }
+            container.appendChild(node);
+        });
+    }
+
+    class TreeNode {
+        constructor(val) {
+            this.val = val;
+            this.left = null;
+            this.right = null;
+        }
+    }
+    let treeRoot = null;
+
+    function insertTree() {
+        const val = parseInt(document.getElementById('tree-input').value);
+        if (isNaN(val)) return;
+        
+        const insertNode = (node, newVal) => {
+            if (newVal < node.val) {
+                if (!node.left) node.left = new TreeNode(newVal);
+                else insertNode(node.left, newVal);
+            } else {
+                if (!node.right) node.right = new TreeNode(newVal);
+                else insertNode(node.right, newVal);
+            }
+        };
+
+        if (!treeRoot) treeRoot = new TreeNode(val);
+        else insertNode(treeRoot, val);
+
+        document.getElementById('tree-input').value = '';
+        renderTree();
+    }
+
+    function clearTree() {
+        treeRoot = null;
+        renderTree();
+    }
+
+    function renderTree() {
+        const svg = document.getElementById('tree-svg');
+        svg.innerHTML = '';
+        if (!treeRoot) return;
+
+        function drawNode(node, x, y, offset) {
+            if (node.left) {
+                const lx = x - offset;
+                const ly = y + 60;
+                drawLine(svg, x, y, lx, ly);
+                drawNode(node.left, lx, ly, offset / 2);
+            }
+            if (node.right) {
+                const rx = x + offset;
+                const ry = y + 60;
+                drawLine(svg, x, y, rx, ry);
+                drawNode(node.right, rx, ry, offset / 2);
+            }
+            drawCircle(svg, x, y, node.val);
+        }
+
+        drawNode(treeRoot, svg.clientWidth / 2, 40, svg.clientWidth / 4);
+    }
+
+    let graphNodes = [];
+    let graphEdges = [];
+
+    function addGraphNode() {
+        const name = document.getElementById('graph-node-input').value.trim();
+        if (!name || graphNodes.find(n => n.id === name)) return;
+
+        const svg = document.getElementById('graph-svg');
+        const x = Math.random() * (svg.clientWidth - 80) + 40;
+        const y = Math.random() * (svg.clientHeight - 80) + 40;
+
+        graphNodes.push({ id: name, x, y });
+        document.getElementById('graph-node-input').value = '';
+        renderGraph();
+    }
+
+    function addGraphEdge() {
+        const u = document.getElementById('graph-edge-u').value.trim();
+        const v = document.getElementById('graph-edge-v').value.trim();
+
+        const nodeU = graphNodes.find(n => n.id === u);
+        const nodeV = graphNodes.find(n => n.id === v);
+
+        if (nodeU && nodeV) {
+            graphEdges.push({ source: nodeU, target: nodeV });
+            document.getElementById('graph-edge-u').value = '';
+            document.getElementById('graph-edge-v').value = '';
+            renderGraph();
+        }
+    }
+
+    function renderGraph() {
+        const svg = document.getElementById('graph-svg');
+        svg.innerHTML = '';
+
+        graphEdges.forEach(e => {
+            drawLine(svg, e.source.x, e.source.y, e.target.x, e.target.y);
+        });
+
+        graphNodes.forEach(n => {
+            drawCircle(svg, n.x, n.y, n.id);
+        });
+    }
+
+    function drawLine(svg, x1, y1, x2, y2) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1);
+        line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2);
+        line.setAttribute("y2", y2);
+        line.setAttribute("class", "link");
+        svg.appendChild(line);
+    }
+
+    function drawCircle(svg, x, y, text) {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "node");
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", 20);
+
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("x", x);
+        txt.setAttribute("y", y);
+        txt.textContent = text;
+
+        g.appendChild(circle);
+        g.appendChild(txt);
+        svg.appendChild(g);
+    }
+</script>
+
+</body>
+</html>
